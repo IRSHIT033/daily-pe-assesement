@@ -87,6 +87,25 @@ class UserUpdate(BaseSchemaModel):
     mob_num: Optional[str]
     pan_num: Optional[str]
     manager_id: Optional[str]
+    @validator('full_name')
+    def validate_full_name(cls, v):
+        if not v or len(v)==0:
+            loguru.logger.error('full_name cannot be empty')
+            raise ValueError('full_name cannot be empty')
+        return v
+    @validator('mob_num')
+    def validate_mob_num(cls, v):
+        if not re.match(mob_num_regex, v):
+            loguru.logger.error('Invalid mobile number')
+            raise ValueError('Invalid mobile number')
+        # Remove any prefix and keep last 10 digits
+        return v[-10:]
+    @validator('pan_num')
+    def validate_pan_num(cls, v):
+        if not re.match(pan_num_regex, v.upper()):
+            loguru.logger.error('Invalid PAN number')
+            raise ValueError('Invalid PAN number')
+        return v.upper()   
 
 class BulkUpdateUserRequestBody(BaseSchemaModel):
       user_ids:List[UUID]

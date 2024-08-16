@@ -1,3 +1,4 @@
+from datetime import datetime,timezone
 from typing import Union,Optional
 import fastapi
 
@@ -29,7 +30,11 @@ async def create_user(
     create_user: CreateUser,
     user_repo:UserRepository  = fastapi.Depends(get_repository(repo_type=UserRepository)),
 ) -> UserResponse:
-
+    # check if manager exists or not
+    manager_exists=await user_repo.get_manager_by_id(manager_id=create_user.manager_id)
+    if not manager_exists:
+        raise await http_404_exc_manager_not_found() 
+    #create user
     new_user = await user_repo.create_user(create_user)
    
     return new_user
@@ -45,16 +50,16 @@ async def get_users(
     get_user: GetUsersRequestBody,
     user_repo:UserRepository  = fastapi.Depends(get_repository(repo_type=UserRepository)),
 ) -> Union[list[UserResponse],Optional[UserResponse]]:
-    
+    # get user matching mob_num
     if get_user.mob_num is not None:
         return await user_repo.get_user_by_mob_num(get_user.mob_num)
-    
+    # get user matching user_id
     if get_user.user_id is not None:
         return await user_repo.get_user_by_user_id(get_user.user_id)
-         
+    # get users under manager      
     if get_user.manager_id is not None:
         return await user_repo.get_users_under_manager_id(get_user.manager_id)
-
+    #get all users
     else :
         return await user_repo.get_all_users()
 
@@ -69,9 +74,11 @@ async def delete_user(
     del_user: DeleteUserRequestBody ,
     user_repo:UserRepository  = fastapi.Depends(get_repository(repo_type=UserRepository)),
 ):
+   # delete user
    try: 
        await user_repo.delete_user(user_id=del_user.user_id,mob_num=del_user.mob_num)
    except :
+       # raise exception if user not found 
        raise await http_404_exc_user_not_found()
    
    return { "message": "user deleted successfully" }  
@@ -119,7 +126,7 @@ async def update_user(
         for user in users:  
             if user.manager_id:
                 user.is_active=False
-                new_user=User(full_name=user.full_name,pan_num=user.pan_num,mob_num=user.mob_num,manager_id=manager_id)
+                new_user=User(full_name=user.full_name,pan_num=user.pan_num,mob_num=user.mob_num,manager_id=manager_id,updated_at=datetime.now(timezone.utc))
                 user_repo.async_session.add(new_user) 
             else:
                 user.manager_id=manager_id

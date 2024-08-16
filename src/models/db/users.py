@@ -15,11 +15,11 @@ class User(Base):  # type: ignore
     manager_id: SQLAlchemyMapped[UUID] = sqlalchemy_mapped_column(sqlalchemy.UUID(),sqlalchemy.ForeignKey(Manager.manager_id),nullable=True)
     
     full_name: SQLAlchemyMapped[str] = sqlalchemy_mapped_column(
-        sqlalchemy.String(length=64), nullable=False, unique=True
+        sqlalchemy.String(length=64), nullable=False
     )
 
-    mob_num: SQLAlchemyMapped[str] = sqlalchemy_mapped_column(sqlalchemy.String(length=10), nullable=False, unique=True)
-    pan_num: SQLAlchemyMapped[str] = sqlalchemy_mapped_column(sqlalchemy.String(length=10), nullable=False, unique=True)
+    mob_num: SQLAlchemyMapped[str] = sqlalchemy_mapped_column(sqlalchemy.String(length=10), nullable=False)
+    pan_num: SQLAlchemyMapped[str] = sqlalchemy_mapped_column(sqlalchemy.String(length=10), nullable=False)
     is_active: SQLAlchemyMapped[bool] = sqlalchemy_mapped_column(sqlalchemy.Boolean, nullable=False, default=True)
     
     created_at: SQLAlchemyMapped[datetime.datetime] = sqlalchemy_mapped_column(
@@ -28,7 +28,7 @@ class User(Base):  # type: ignore
     updated_at: SQLAlchemyMapped[datetime.datetime] = sqlalchemy_mapped_column(
         sqlalchemy.DateTime(timezone=True),
         nullable=True,
-        server_onupdate=sqlalchemy.schema.FetchedValue(for_update=True),
+        onupdate=sqlalchemy.func.now()
     )
 
     

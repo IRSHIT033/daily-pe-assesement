@@ -14,11 +14,11 @@ class Manager(Base):  # type: ignore
     manager_id: SQLAlchemyMapped[UUID] = sqlalchemy_mapped_column(primary_key=True)
     
     job_name: SQLAlchemyMapped[str] = sqlalchemy_mapped_column(
-        sqlalchemy.String(length=64), nullable=False, unique=True
+        sqlalchemy.String(length=64), nullable=False
     )
 
     manager_name: SQLAlchemyMapped[str] = sqlalchemy_mapped_column(
-        sqlalchemy.String(length=64), nullable=False, unique=True
+        sqlalchemy.String(length=64), nullable=False
     )
 
     is_active: SQLAlchemyMapped[bool] = sqlalchemy_mapped_column(sqlalchemy.Boolean, nullable=False, default=True)
