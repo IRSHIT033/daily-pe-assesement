@@ -61,4 +61,17 @@ class GetUsersRequestBody(BaseSchemaModel):
             raise ValueError('Invalid mobile number')
         # Remove any prefix and keep last 10 digits
         return v[-10:]
-  
+
+class DeleteUserRequestBody(BaseSchemaModel):  
+    mob_num: str | None = None
+    user_id: UUID | None = None
+    @validator('mob_num')
+    def validate_mob_num(cls, v):
+        if not re.match(mob_num_regex, v):
+            loguru.logger.error('Invalid mobile number')
+            raise ValueError('Invalid mobile number')
+        # Remove any prefix and keep last 10 digits
+        return v[-10:]  
+
+class DeleteUserResponse(BaseSchemaModel): 
+     message: str    

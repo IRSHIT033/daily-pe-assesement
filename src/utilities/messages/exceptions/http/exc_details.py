@@ -5,6 +5,8 @@ def http_400_username_details(username: str) -> str:
 def http_400_email_details(email: str) -> str:
     return f"The email {email} is already registered! Be creative and choose another one!"
 
+def http_404_user_not_found() -> str:
+    return " User not found "
 
 def http_400_signup_credentials_details() -> str:
     return "Signup failed! Recheck all your credentials!"

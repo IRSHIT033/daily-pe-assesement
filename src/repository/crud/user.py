@@ -48,6 +48,27 @@ class UserRepository(BaseRepository):
         query = await self.async_session.execute(statement=stmt)
         
         return query.scalars().all()
+    
+    async def delete_user(self,user_id:str|None=None,mob_num:str|None=None):
+        if user_id is not None:
+              stmt = sqlalchemy.delete(User).where(User.user_id==user_id)
+              query= await self.async_session.execute(statement=stmt)
+              if query.rowcount == 0:
+                raise 
+              await self.async_session.commit()
+
+        elif mob_num is not None: 
+              stmt = sqlalchemy.delete(User).where(User.mob_num==mob_num)
+              query=await self.async_session.execute(statement=stmt)
+              if query.rowcount == 0:
+                raise EntityDoesNotExist("User not found against mob_num")
+              await self.async_session.commit()
+
+        return { "message": "user deleted successfully" }    
+
+                
+
+
         
     
 
