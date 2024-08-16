@@ -1,14 +1,15 @@
+import datetime
 from uuid import UUID
 import typing
 from src.models.db.users import User
 from src.models.db.managers import Manager
 from src.repository.crud.base import BaseRepository
-from src.models.schema.users import CreateUser,GetUsersRequestBody
+from src.models.schema.users import CreateUser,UserResponse as UpdateUser
 from sqlalchemy.sql import functions as sqlalchemy_functions
 import sqlalchemy
-from src.utilities.exceptions.database import EntityAlreadyExists, EntityDoesNotExist
-from sqlalchemy.sql import or_
+from src.utilities.exceptions.database import  EntityDoesNotExist
 
+from typing import List
 from src.models.schema.users import UserResponse
 
 class UserRepository(BaseRepository):
@@ -23,8 +24,11 @@ class UserRepository(BaseRepository):
         return new_user
     
     # get all users
-    async def get_all_users(self) -> list[UserResponse]:
-        stmt = sqlalchemy.select(User)
+    async def get_all_users(self,user_ids:List[UUID]) -> List[UserResponse]:
+        if  user_ids and len(user_ids)>=1:
+          stmt = sqlalchemy.select(User).where(User.user_id.in_(user_ids))
+        else : 
+          stmt = sqlalchemy.select(User)
         query = await self.async_session.execute(statement=stmt)
         return query.scalars().all()
     
@@ -43,8 +47,14 @@ class UserRepository(BaseRepository):
         
         return query.scalars().all()
     
-    async def get_users_by_manager_id(self, manager_id:UUID)-> list[UserResponse]:
+    async def get_users_under_manager_id(self, manager_id:UUID)-> list[UserResponse]:
         stmt = sqlalchemy.select(User).join(Manager,Manager.manager_id==User.manager_id).where(User.manager_id==manager_id)
+        query = await self.async_session.execute(statement=stmt)
+        
+        return query.scalars().all()
+    
+    async def get_manager_by_id(self, manager_id:UUID):
+        stmt = sqlalchemy.select(Manager).where(Manager.manager_id==manager_id)
         query = await self.async_session.execute(statement=stmt)
         
         return query.scalars().all()
@@ -64,8 +74,31 @@ class UserRepository(BaseRepository):
                 raise EntityDoesNotExist("User not found against mob_num")
               await self.async_session.commit()
 
-        return { "message": "user deleted successfully" }    
 
+    async def update_manager(self,user:UpdateUser,manager_id:UUID):
+      async with self.async_session as session:  
+            if not session.is_active:
+                session.add(user)
+            if user.manager_id:
+                user.is_active=False
+                await session.commit()
+
+                new_user=User(full_name=user.full_name,pan_num=user.pan_num,mob_num=user.mob_num,manager_id=manager_id,updated_at=datetime.utcnow())
+                self.session.add(instance=new_user)
+                await session.commit()
+                await session.refresh(instance=new_user)
+                
+            else:
+                user.manager_id=manager_id
+                await session.commit()
+            
+        
+
+
+        
+        
+
+        
                 
 
 

@@ -26,15 +26,13 @@ class Manager(Base):  # type: ignore
     created_at: SQLAlchemyMapped[datetime.datetime] = sqlalchemy_mapped_column(
         sqlalchemy.DateTime(timezone=True), nullable=False, server_default=sqlalchemy_functions.now()
     )
+    
     updated_at: SQLAlchemyMapped[datetime.datetime] = sqlalchemy_mapped_column(
         sqlalchemy.DateTime(timezone=True),
         nullable=True,
         server_onupdate=sqlalchemy.schema.FetchedValue(for_update=True),
     )
 
-    users = sqlalchemy_relationship("User")
-
-    __mapper_args__ = {"eager_defaults": True}
 
     def __init__(self, **kwargs):
         if 'id' not in kwargs:

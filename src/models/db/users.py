@@ -31,9 +31,7 @@ class User(Base):  # type: ignore
         server_onupdate=sqlalchemy.schema.FetchedValue(for_update=True),
     )
 
-    manager = sqlalchemy_relationship("Manager")
-
-    __mapper_args__ = {"eager_defaults": True}
+    
 
     def __init__(self, **kwargs):
         if 'id' not in kwargs:

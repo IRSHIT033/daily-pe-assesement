@@ -5,16 +5,24 @@ cannot or will not process the request due to something that is perceivedto be a
 """
 
 import fastapi
+from typing import List
+
 
 from src.utilities.messages.exceptions.http.exc_details import (
-    http_404_user_not_found
+    http_400_user_ids_not_Provided,
+    http_400_bulk_update_extra_keys,
+   
 )
 
 
-
-async def http_404_exc_user_not_found() -> Exception:
+async def http_400_exc_user_ids_not_provided() -> Exception:
     return fastapi.HTTPException(
-        status_code=fastapi.status.HTTP_404_NOT_FOUND,
-        detail=http_404_user_not_found,
+        status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+        detail=http_400_user_ids_not_Provided(),
     )
 
+async def http_400_exc_bulk_update_extra_keys(extra_keys:List[str]) -> Exception:
+    return fastapi.HTTPException(
+        status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+        detail=http_400_bulk_update_extra_keys(extra_keys=extra_keys),
+    )

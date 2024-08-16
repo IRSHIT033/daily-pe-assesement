@@ -50,11 +50,17 @@ async def initialize_db_connection(backend_app: fastapi.FastAPI) -> None:
 async def seed_manager_data(backend_app: fastapi.FastAPI) -> None:
     loguru.logger.info("Manager data seeding started . . .")
     
-    new_manager= Manager(job_name="Software",manager_name="Abhirup Ghosh")
+    manager_one= Manager(job_name="Software",manager_name="Abhirup Ghosh")
     backend_app.state.session= async_db.async_session
-    backend_app.state.session.add(instance=new_manager)
+    backend_app.state.session.add(instance=manager_one)
     await backend_app.state.session.commit()
-    await backend_app.state.session.refresh(instance=new_manager)
+    await backend_app.state.session.refresh(instance=manager_one)
+
+    manager_two= Manager(job_name="Management",manager_name="Aritra Roy")
+    backend_app.state.session= async_db.async_session
+    backend_app.state.session.add(instance=manager_two)
+    await backend_app.state.session.commit()
+    await backend_app.state.session.refresh(instance=manager_two)
 
     loguru.logger.info("Seeding --- Successfully Completed!")    
 

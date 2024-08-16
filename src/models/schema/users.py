@@ -4,7 +4,7 @@ import datetime
 from uuid import UUID
 from pydantic import validator
 import loguru
-
+from typing import List, Optional
 from src.models.schema.base import BaseSchemaModel
 import re
 
@@ -17,7 +17,7 @@ class CreateUser(BaseSchemaModel):
     full_name: str
     mob_num: str
     pan_num: str
-    manager_id: UUID | None = None
+    manager_id: Optional[UUID] 
     @validator('full_name')
     def validate_full_name(cls, v):
         if not v or len(v)==0:
@@ -41,19 +41,20 @@ class CreateUser(BaseSchemaModel):
         return v.upper()
 
 class UserResponse(BaseSchemaModel):
+    user_id: UUID
     full_name: str
     mob_num: str
     pan_num: str
-    manager_id: UUID | None = None
+    manager_id: Optional[UUID] 
     is_active: bool
-    updated_at: datetime.datetime | None
+    updated_at: Optional[datetime.datetime]
     created_at: datetime.datetime 
 
 
 class GetUsersRequestBody(BaseSchemaModel):
-    mob_num: str | None = None
-    user_id: UUID | None = None
-    manager_id: UUID | None = None
+    mob_num: Optional[str]
+    user_id: Optional[UUID]
+    manager_id: Optional[UUID]
     @validator('mob_num')
     def validate_mob_num(cls, v):
         if not re.match(mob_num_regex, v):
@@ -63,8 +64,8 @@ class GetUsersRequestBody(BaseSchemaModel):
         return v[-10:]
 
 class DeleteUserRequestBody(BaseSchemaModel):  
-    mob_num: str | None = None
-    user_id: UUID | None = None
+    mob_num: Optional[str]
+    user_id: Optional[UUID]
     @validator('mob_num')
     def validate_mob_num(cls, v):
         if not re.match(mob_num_regex, v):
@@ -74,4 +75,19 @@ class DeleteUserRequestBody(BaseSchemaModel):
         return v[-10:]  
 
 class DeleteUserResponse(BaseSchemaModel): 
-     message: str    
+     message: str  
+
+class BulkUpdateUserResponse(BaseSchemaModel): 
+     message: str  
+
+
+
+class UserUpdate(BaseSchemaModel):
+    full_name: Optional[str]
+    mob_num: Optional[str]
+    pan_num: Optional[str]
+    manager_id: Optional[str]
+
+class BulkUpdateUserRequestBody(BaseSchemaModel):
+      user_ids:List[UUID]
+      update_data:UserUpdate
