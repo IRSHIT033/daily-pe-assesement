@@ -5,6 +5,7 @@ from sqlalchemy.dialects.postgresql.asyncpg import AsyncAdapt_asyncpg_connection
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSessionTransaction
 from sqlalchemy.pool.base import _ConnectionRecord
 
+from src.config.manager import settings
 from src.models.db.managers import Manager
 from src.repository.database import async_db
 from src.repository.table import Base
@@ -27,11 +28,11 @@ def inspect_db_server_on_close(
 
 
 async def initialize_db_tables(connection: AsyncConnection) -> None:
-    loguru.logger.info("Database Table Creation --- Initializing . . .")
 
+  if settings.ENVIRONMENT == "DEV" :  
+    loguru.logger.info("Database Table Creation --- Initializing . . .")
     await connection.run_sync(Base.metadata.drop_all)
     await connection.run_sync(Base.metadata.create_all)
-
     loguru.logger.info("Database Table Creation --- Successfully Initialized!")
 
 
@@ -48,6 +49,9 @@ async def initialize_db_connection(backend_app: fastapi.FastAPI) -> None:
 
 
 async def seed_manager_data(backend_app: fastapi.FastAPI) -> None:
+
+
+  if settings.ENVIRONMENT == "DEV" :  
     loguru.logger.info("Manager data seeding started . . .")
     
     manager_one= Manager(job_name="Software",manager_name="Abhirup Ghosh")

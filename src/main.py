@@ -12,6 +12,7 @@ from mangum import Mangum
 
 def initialize_backend_application() -> fastapi.FastAPI:
     app = fastapi.FastAPI(**settings.set_backend_app_attributes)  # type: ignore
+    
 
     app.add_middleware(
         CORSMiddleware,
@@ -25,17 +26,19 @@ def initialize_backend_application() -> fastapi.FastAPI:
         "startup",
         execute_backend_server_event_handler(backend_app=app),
     )
+    
+ 
     app.add_event_handler(
         "startup",
-       execute_data_seed_event_handler(backend_app=app)
+    execute_data_seed_event_handler(backend_app=app)
     )
 
     app.add_event_handler(
         "shutdown",
         terminate_backend_server_event_handler(backend_app=app),
     )
-
-    # app.add_middleware(ExceptionHandlerMiddleware)
+    
+    app.add_middleware(ExceptionHandlerMiddleware)
 
     app.include_router(router=api_endpoint_router, prefix=settings.API_PREFIX)
     
