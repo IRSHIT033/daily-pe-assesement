@@ -15,7 +15,7 @@ async def get_async_session() -> typing.AsyncGenerator[SQLAlchemyAsyncSession, N
     try:
         yield async_db.async_session
     except Exception as e:
-        print(e)
         await async_db.async_session.rollback()
+        raise
     finally:
         await async_db.async_session.close()

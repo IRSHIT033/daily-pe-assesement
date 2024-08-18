@@ -3,10 +3,11 @@ import pathlib
 
 import decouple
 import pydantic
+from pydantic import BaseSettings
 
 
 
-class BackendBaseSettings(pydantic.BaseSettings):
+class BackendBaseSettings(BaseSettings):
     TITLE: str = "DAILYPE TASK BACKEND"
     VERSION: str = "0.1.0"
     TIMEZONE: str = "IST"
@@ -64,7 +65,7 @@ class BackendBaseSettings(pydantic.BaseSettings):
     # HASHING_ALGORITHM_LAYER_2: str = decouple.config("HASHING_ALGORITHM_LAYER_2", cast=str)  # type: ignore
     # HASHING_SALT: str = decouple.config("HASHING_SALT", cast=str)  # type: ignore
     # JWT_ALGORITHM: str = decouple.config("JWT_ALGORITHM", cast=str)  # type: ignore
-
+    
     class Config(pydantic.BaseConfig):
         case_sensitive: bool = True
         env_file: str = ".env"

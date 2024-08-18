@@ -1,7 +1,5 @@
 from datetime import datetime,timezone
-from typing import Union,Optional
 import fastapi
-
 from src.api.dependencies.repository import get_repository
 from src.models.schema.users import CreateUser,GetUsersRequestBody, UserResponse, DeleteUserRequestBody, DeleteUserResponse,BulkUpdateUserRequestBody, BulkUpdateUserResponse
 from src.repository.crud.user import UserRepository
@@ -17,6 +15,7 @@ from src.utilities.exceptions.http.exc_400 import (
     http_400_exc_bulk_update_extra_keys
 )
 
+
 router = fastapi.APIRouter(prefix="/users", tags=["users"])
 
 
@@ -29,14 +28,14 @@ router = fastapi.APIRouter(prefix="/users", tags=["users"])
 async def create_user(
     create_user: CreateUser,
     user_repo:UserRepository  = fastapi.Depends(get_repository(repo_type=UserRepository)),
-) -> UserResponse:
-    # check if manager exists or not
-    manager_exists=await user_repo.get_manager_by_id(manager_id=create_user.manager_id)
-    if not manager_exists:
-        raise await http_404_exc_manager_not_found() 
-    #create user
+) -> User:
+    # check if manager exists 
+    if create_user.manager_id is not None: 
+        manager_exists = await user_repo.get_manager_by_id(create_user.manager_id)
+        if len(manager_exists)==0 :
+            raise http_404_exc_manager_not_found()
+    # create user  
     new_user = await user_repo.create_user(create_user)
-   
     return new_user
 
 
@@ -49,7 +48,7 @@ async def create_user(
 async def get_users(
     get_user: GetUsersRequestBody,
     user_repo:UserRepository  = fastapi.Depends(get_repository(repo_type=UserRepository)),
-) -> Union[list[UserResponse],Optional[UserResponse]]:
+) -> list[UserResponse]:
     # get user matching mob_num
     if get_user.mob_num is not None:
         return await user_repo.get_user_by_mob_num(get_user.mob_num)
@@ -119,7 +118,7 @@ async def update_user(
         manager_id= update_data.get('manager_id')
         # Validate manager existence
         manager=await user_repo.get_manager_by_id(manager_id=manager_id)
-        if not manager:
+        if len(manager)==0 :
             raise await http_404_exc_manager_not_found()
         
         # For each user, update manager_id or create a new entry if they already have a manager
@@ -131,15 +130,15 @@ async def update_user(
             else:
                 user.manager_id=manager_id
                 
-    else:
-        # For individual updates of other fields
+    
+    # For individual updates of other fields
+    if len(users)==1:
         for user in users:
             for key, value in update_data.items():
-               setattr(user,key,value)
+                setattr(user,key,value)
 
     await user_repo.async_session.commit()           
             
-                   
     return {"message":"User(s) updated successfully"}
 
                      

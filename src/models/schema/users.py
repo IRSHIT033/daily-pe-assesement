@@ -4,7 +4,7 @@ import datetime
 from uuid import UUID
 from pydantic import validator
 import loguru
-from typing import List, Optional
+from typing import List
 from src.models.schema.base import BaseSchemaModel
 import re
 
@@ -17,7 +17,7 @@ class CreateUser(BaseSchemaModel):
     full_name: str
     mob_num: str
     pan_num: str
-    manager_id: Optional[UUID] 
+    manager_id: UUID | None = None
     @validator('full_name')
     def validate_full_name(cls, v):
         if not v or len(v)==0:
@@ -45,16 +45,16 @@ class UserResponse(BaseSchemaModel):
     full_name: str
     mob_num: str
     pan_num: str
-    manager_id: Optional[UUID] 
+    manager_id: UUID | None = None
     is_active: bool
-    updated_at: Optional[datetime.datetime]
+    updated_at: datetime.datetime | None = None 
     created_at: datetime.datetime 
 
 
 class GetUsersRequestBody(BaseSchemaModel):
-    mob_num: Optional[str]
-    user_id: Optional[UUID]
-    manager_id: Optional[UUID]
+    mob_num:str | None = None
+    user_id:UUID | None = None
+    manager_id:UUID | None = None
     @validator('mob_num')
     def validate_mob_num(cls, v):
         if not re.match(mob_num_regex, v):
@@ -64,8 +64,8 @@ class GetUsersRequestBody(BaseSchemaModel):
         return v[-10:]
 
 class DeleteUserRequestBody(BaseSchemaModel):  
-    mob_num: Optional[str]
-    user_id: Optional[UUID]
+    mob_num: str | None = None
+    user_id: UUID | None = None
     @validator('mob_num')
     def validate_mob_num(cls, v):
         if not re.match(mob_num_regex, v):
@@ -83,10 +83,10 @@ class BulkUpdateUserResponse(BaseSchemaModel):
 
 
 class UserUpdate(BaseSchemaModel):
-    full_name: Optional[str]
-    mob_num: Optional[str]
-    pan_num: Optional[str]
-    manager_id: Optional[str]
+    full_name: str | None = None
+    mob_num: str | None = None
+    pan_num: str | None = None
+    manager_id: str | None = None
     @validator('full_name')
     def validate_full_name(cls, v):
         if not v or len(v)==0:

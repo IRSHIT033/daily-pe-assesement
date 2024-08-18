@@ -33,7 +33,7 @@ RUN adduser \
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    python -m pip install -r requirements.txt
+     pip install -r requirements.txt
 
 RUN pip install fastapi uvicorn
 
@@ -46,5 +46,5 @@ COPY . .
 # Expose the port that the application listens on.
 EXPOSE 8000
 
-# Run the application.
-CMD ["uvicorn","src.main:backend_app","--reload","--host","0.0.0.0","--port","8000"]
+RUN chmod +x lambda_entry_script.sh
+ENTRYPOINT [ "lambda_entry_script.sh","main.handler" ]
